@@ -4,20 +4,20 @@ import Table from 'react-bootstrap/Table';
 import * as Api from "../../api";
 
 //수상내역
-const UserAward = ({ award, setAward, setIsEditing}) => {
+const UserAward = ({ award, setAward, setIsEditing }) => {
   
   const [awardData, setAwardData] = useState([]);
   const [awardDate, setAwardDate] = useState('');
-  const [organizer, setOrganizer] = useState('');
-  const [description, setDescription] = useState('');
+  const [issuer, setIssuer] = useState('');
+  const [title, setTitle] = useState('');
   const [editIndex, setEditIndex] = useState(-1);
 
   //수상내역 추가하기ㄴ
   const addAward = () => {
     const award = {
       awardDate: new Date(awardDate),
-      organizer: organizer,
-      description: description,
+      issuer: issuer,
+      title: title,
     };
 
     if (editIndex !== -1) {
@@ -30,8 +30,8 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
     }
 
     setAwardDate('');
-    setOrganizer('');
-    setDescription('');
+    setIssuer('');
+    setTitle('');
   };
 
   // 수상내역 삭제
@@ -45,17 +45,17 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
   const editAward = (index) => {
     const award = awardData[index];
     setAwardDate(award.awardDate.toISOString().split('T')[0]);
-    setOrganizer(award.organizer);
-    setDescription(award.description);
+    setIssuer(award.issuer);
+    setTitle(award.title);
     setEditIndex(index);
   };
   
   // 수상일자 입력 여부 확인
-  const isAwardDatelValid = (awardDate.length = 8);
+  const isAwardDatelValid = typeof Number(awardDate.length) === "number";
   // 주최사 입력 여부 확인
-  const isOrganizerValid = organizer.length > 1;
+  const isOrganizerValid = issuer.length > 1;
   // 수상내용 입력 여부 확인
-  const isDescriptionValid = description.length > 1;
+  const isDescriptionValid = title.length > 1;
 
 
   const handleSubmit = async (e) => {
@@ -64,8 +64,8 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
     // "users/유저id" 엔드포인트로 PUT 요청함.
     const res = await Api.put(`award/${award.id}`, {
       awardData,
-      organizer,
-      description
+      issuer,
+      title
     });
     // 유저 정보는 response의 data임.
     const updateAward = res.data;
@@ -98,17 +98,16 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
                       수상 일자가 입력되지 않았습니다.
                     </Form.Text>
                   )}
-                  <br />
               </Form.Group>
 
               <Form.Group>
                 <Form.Label>주최</Form.Label>
                   <input
                     type="text"
-                    id="organizer"
-                    value={organizer}
+                    id="issuer"
+                    value={issuer}
                     placeholder="주최사를 입력해주세요"
-                    onChange={(e) => setOrganizer(e.target.value)}
+                    onChange={(e) => setIssuer(e.target.value)}
                     required
                   />
                   {!isOrganizerValid && (
@@ -116,16 +115,15 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
                       주최사가 입력되지 않았습니다.
                     </Form.Text>
                   )}
-                  <br />
               </Form.Group>
 
               <Form.Group>
                 <Form.Label>수상내용</Form.Label>
                   <input
                     type="text"
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     required
                   />
                   {!isDescriptionValid && (
@@ -133,21 +131,19 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
                       수상 내용이 입력되지 않았습니다
                     </Form.Text>
                   )}
-                  <br />
+
               </Form.Group>
-            
+
+
               <Form.Group as={Row} className="mt-3 text-center">
                 <Col sm={{ span: 20 }}>
                   <Button variant="primary" type="submit" onClick={addAward}>
-                    추가
+                  {editIndex !== -1 ? '완료' : '추가'}
                   </Button>
                 </Col>
               </Form.Group>
-                
-              <Button ariant="primary" type="submit" onClick={addAward}>
-                {editIndex !== -1 ? '수정' : '추가'}
-              </Button>
-              
+            
+            
               {awardData.length === 0 ? (
                 <p>수상내역이 없습니다.</p>
               ) : (
@@ -169,10 +165,10 @@ const UserAward = ({ award, setAward, setIsEditing}) => {
                           {award.awardDate.getMonth() + 1}.
                           {award.awardDate.getDate()}
                         </td>
-                        <td>{award.organizer}</td>
-                        <td>{award.description}</td>
+                        <td>{award.issuer}</td>
+                        <td>{award.title}</td>
                         <td>
-                          <Button variant="info" onClick={() => editAward(index)}>
+                          <Button variant="primary" onClick={() => editAward(index)}>
                             수정
                           </Button>
                         </td>
